@@ -1,6 +1,6 @@
 //
 //  ViewController.swift
-//  CareQuest1
+//  CareQuest2
 //
 //  Created by Dhiya Michelle on 19/10/24.
 //
@@ -8,48 +8,67 @@
 import UIKit
 
 class ViewController: UIViewController {
-    // Outlets for the text fields
-        @IBOutlet weak var nameTextField: UITextField!
-        @IBOutlet weak var phoneTextField: UITextField!
-        @IBOutlet weak var emailTextField: UITextField!
 
-        var contacts: [(name: String, phone: String, email: String)] = []
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
-        override func viewDidLoad() {
-            super.viewDidLoad()
+        struct Article: Codable {
+            let title: String
+            let description: String?
         }
 
-        // Action for the Save button
-        @IBAction func saveContact(_ sender: UIButton) {
-            // Retrieve the input values
-            let name = nameTextField.text ?? ""
-            let phone = phoneTextField.text ?? ""
-            let email = emailTextField.text ?? ""
-            
-            // Make sure none of the fields are empty
-            if name.isEmpty || phone.isEmpty || email.isEmpty {
-                showAlert(message: "Please fill in all fields.")
-            } else {
-                // Save the contact
-                let newContact = (name: name, phone: phone, email: email)
-                contacts.append(newContact)
+        struct NewsResponse: Codable {
+            let articles: [Article]
+        }
+
+        class NewsViewController: UIViewController {
+
+            override func viewDidLoad() {
+                super.viewDidLoad()
+                fetchNews()
+            }
+
+            func fetchNews() {
+                let apiKey = "1503374c0271460c9dcdcb7637e08dee"
+                let urlString = "https://newsapi.org/v2/top-headlines?country=us&apiKey=\(apiKey)"
                 
-                // Show success message
-                showAlert(message: "Contact saved successfully!")
+                guard let url = URL(string: urlString) else { return }
                 
-                // Optionally, clear the text fields
-                nameTextField.text = ""
-                phoneTextField.text = ""
-                emailTextField.text = ""
+                let task = URLSession.shared.dataTask(with: url) { data, response, error in
+                    if let error = error {
+                        print("Error fetching data: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    guard let data = data else { return }
+                    
+                    do {
+                        let decoder = JSONDecoder()
+                        let newsResponse = try decoder.decode(NewsResponse.self, from: data)
+                        let articles = newsResponse.articles
+                        
+                        // Print titles for debugging
+                        for article in articles {
+                            print("Title: \(article.title)")
+                        }
+                        
+                        // Now you can update your UI with the articles (title, description, etc.)
+                        DispatchQueue.main.async {
+                            // Update UI
+                        }
+                        
+                    } catch let jsonError {
+                        print("Failed to decode JSON: \(jsonError)")
+                    }
+                }
+                
+                task.resume()
             }
         }
 
-        // Function to show alerts
-        func showAlert(message: String) {
-            let alert = UIAlertController(title: "Alert", message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            present(alert, animated: true, completion: nil)
-        }
+        // Do any additional setup after loading the view.
     }
 
+
+}
 

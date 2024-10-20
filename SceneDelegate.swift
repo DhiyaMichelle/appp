@@ -1,6 +1,6 @@
 //
 //  SceneDelegate.swift
-//  CareQuest1
+//  CareQuest2
 //
 //  Created by Dhiya Michelle on 19/10/24.
 //
